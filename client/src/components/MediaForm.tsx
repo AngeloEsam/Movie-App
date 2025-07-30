@@ -1,4 +1,3 @@
-// Updated MediaForm.tsx with full form fields and UI polish
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,7 @@ export default function MediaForm({ item, onSubmit }: Props) {
     if (item) setForm(item);
   }, [item]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
@@ -38,11 +37,15 @@ export default function MediaForm({ item, onSubmit }: Props) {
     const res = item
       ? await api.put(`/media/${item.id}`, form)
       : await api.post('/media', form);
-    onSubmit(res.data);
+
+    onSubmit({
+      ...res.data,
+      id: Number(res.data.id),
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 p-4 bg-white rounded shadow">
+    <form onSubmit={handleSubmit} className="space-y-3 p-2">
       <Input name="title" placeholder="Title" value={form.title} onChange={handleChange} required />
       <select
         name="type"
