@@ -6,15 +6,12 @@ This is a full-stack Movies application built using (Mysql, Express.js, React.js
 ### ✅ movies Functionality
 - Add, edit, delete movie items
 - Each movie includes: title, type, dircetor, budget, location,Duration and year 
-- Filter tasks by status (pending/completed)
-- Search tasks by title
-- View only tasks for the authenticated user
 
 ## 🧰 Tech Stack
 
 | Layer      | Tech                           |
 |------------|--------------------------------|
-| Frontend   | React,Tailwind CSS             |
+| Frontend   | React,Tailwind CSS,shadcn ui   |
 | Backend    | Node.js, Express.js,prima      |
 | Database   | mysql                          |
 | Dev Tools  | Vite, ESLint, Nodemon          |
@@ -26,8 +23,8 @@ This is a full-stack Movies application built using (Mysql, Express.js, React.js
 ### 📁 Clone the repository
 
 ```bash
-git clone https://github.com/AngeloEsam/todo-list-mern.git
-cd todo-list-mern
+git clone https://github.com/AngeloEsam/Movie-App.git
+cd Movie-App
 --
 
 ##  Run Backend
