@@ -23,9 +23,15 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
 
   const pageRef = useRef(1);
+  const loadingRef = useRef(false);
+  const hasMoreRef = useRef(true);
 
   const loadMediaFromPage = async (targetPage: number) => {
+    if (loadingRef.current || !hasMoreRef.current) return;
+
     setLoading(true);
+    loadingRef.current = true;
+
     try {
       const res = await api.get(`/media?page=${targetPage}`);
       const newItems = res.data.media.map((item: any) => ({
@@ -36,12 +42,16 @@ export default function Home() {
       setMediaList(prev =>
         targetPage === 1 ? newItems : [...prev, ...newItems]
       );
+
       setHasMore(res.data.hasMore);
+      hasMoreRef.current = res.data.hasMore;
+
       pageRef.current = targetPage + 1;
     } catch (err) {
       console.error('Error loading media:', err);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   };
 
@@ -52,14 +62,31 @@ export default function Home() {
       const nearBottom =
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - 100;
-      console.log(nearBottom)
-      if (nearBottom && !loading && hasMore) {
+
+      if (
+        nearBottom &&
+        !loadingRef.current &&
+        hasMoreRef.current
+      ) {
         loadMediaFromPage(pageRef.current);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (
+        document.documentElement.scrollHeight <= window.innerHeight &&
+        !loadingRef.current &&
+        hasMoreRef.current
+      ) {
+        loadMediaFromPage(pageRef.current);
+      }
+    }, 500);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -138,7 +165,7 @@ export default function Home() {
           </tbody>
         </table>
         {loading && <p className="text-center text-gray-500 mt-4">Loading...</p>}
-        {!hasMore && (
+        {!hasMore && !loading && (
           <p className="text-center text-gray-400 mt-4">No more items.</p>
         )}
       </div>
