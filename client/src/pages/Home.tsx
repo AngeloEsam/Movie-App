@@ -113,14 +113,14 @@ export default function Home() {
         <table className="min-w-full text-sm border">
           <thead className="bg-gray-100">
             <tr>
-              <th className="p-2 text-left">Title</th>
-              <th className="p-2 text-left">Type</th>
-              <th className="p-2 text-left">Director</th>
-              <th className="p-2 text-left">Budget</th>
-              <th className="p-2 text-left">Location</th>
-              <th className="p-2 text-left">Duration</th>
-              <th className="p-2 text-left">Year</th>
-              <th className="p-2 text-left">Actions</th>
+              <th className="p-2 text-center">Title</th>
+              <th className="p-2 text-center">Type</th>
+              <th className="p-2 text-center">Director</th>
+              <th className="p-2 text-center">Budget</th>
+              <th className="p-2 text-center">Location</th>
+              <th className="p-2 text-center">Duration</th>
+              <th className="p-2 text-center">Year</th>
+              <th className="p-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
