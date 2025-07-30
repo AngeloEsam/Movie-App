@@ -14,16 +14,20 @@ export const createMedia = async (req: Request, res: Response) => {
 
 export const getAllMedia = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
-  const limit = 10;
+  const limit = 30;
   const skip = (page - 1) * limit;
 
+  const totalCount = await prisma.media.count();
   const media = await prisma.media.findMany({
     skip,
     take: limit,
     orderBy: { createdAt: 'desc' }
   });
 
-  res.json(media);
+  res.json({
+    media,
+    hasMore: skip + media.length < totalCount
+  });
 };
 
 export const updateMedia = async (req: Request, res: Response) => {

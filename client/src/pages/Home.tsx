@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import api from '../lib/api';
 import { MediaItem } from '../types/media';
 import MediaCard from '../components/MediaCard';
@@ -19,36 +19,47 @@ export default function Home() {
   const [openModal, setOpenModal] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const loadMedia = async () => {
-    if (loading || !hasMore) return;
+  const pageRef = useRef(1);
+
+  const loadMediaFromPage = async (targetPage: number) => {
     setLoading(true);
-    const res = await api.get(`/media?page=${page}`);
-    const newItems = res.data.map((item: any) => ({
-      ...item,
-      id: Number(item.id),
-    }));
-    setMediaList(prev => [...prev, ...newItems]);
-    setHasMore(newItems.length > 0);
-    setPage(prev => prev + 1);
-    setLoading(false);
+    try {
+      const res = await api.get(`/media?page=${targetPage}`);
+      const newItems = res.data.media.map((item: any) => ({
+        ...item,
+        id: Number(item.id),
+      }));
+
+      setMediaList(prev =>
+        targetPage === 1 ? newItems : [...prev, ...newItems]
+      );
+      setHasMore(res.data.hasMore);
+      pageRef.current = targetPage + 1;
+    } catch (err) {
+      console.error('Error loading media:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    loadMedia();
-    const onScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 300 &&
-        !loading
-      ) {
-        loadMedia();
+    loadMediaFromPage(1);
+
+    const handleScroll = () => {
+      const nearBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 100;
+      console.log(nearBottom)
+      if (nearBottom && !loading && hasMore) {
+        loadMediaFromPage(pageRef.current);
       }
     };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -56,18 +67,15 @@ export default function Home() {
   }, [selected]);
 
   const handleSubmit = (item: MediaItem) => {
-    const fixedItem = {
-      ...item,
-      id: Number(item.id),
-    };
+    const exists = mediaList.find(m => m.id === item.id);
 
-    setMediaList(prev => {
-      const exists = prev.find(i => i.id === fixedItem.id);
-      if (exists) {
-        return prev.map(i => (i.id === fixedItem.id ? fixedItem : i));
-      }
-      return [fixedItem, ...prev];
-    });
+    if (exists) {
+      setMediaList(prev =>
+        prev.map(m => (m.id === item.id ? item : m))
+      );
+    } else {
+      setMediaList(prev => [item, ...prev]);
+    }
 
     setSelected(undefined);
     setOpenModal(false);
